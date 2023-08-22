@@ -117,8 +117,8 @@ public class UARTService extends Service {
             int motorSOCSecondByte = (int ) data[2];
             int soc = ( motorSOCSecondByte << 8 | motorSOCFirstByte );
             double calSoc = (double ) soc * ( 0.01 );
-            Intent intent = new Intent("com.example.myapplication.ACTION_SEND");
-            intent.setAction("com.example.myapplication.ACTION_SEND");
+            Intent intent = new Intent(topicName);
+            intent.setAction(topicName);
             intent.putExtra("id", possibleCanID2);
             intent.putExtra("soc",  calSoc);
             intent.putExtra("data", "RE-Data is coming");
