@@ -6,7 +6,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.royalenfield.uartservice.UARTService;
 
 public class ReDigitalBroadcaster extends Service {
     private static final String TAG = "ReDigitalBroadcaster";
