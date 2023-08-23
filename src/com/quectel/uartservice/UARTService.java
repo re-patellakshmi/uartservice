@@ -3,12 +3,17 @@
 package com.quectel.uartservice;
 
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.digital.services.ReDigitalBroadcaster;
 import com.digital.services.ReDigitalService;
+import com.sibros.service.SibrosBroadcaster;
 import com.sibros.service.SibrosService;
 
 public class UARTService extends Service {
@@ -19,6 +24,11 @@ public class UARTService extends Service {
     private UART ttyHSLx;
     private ReDigitalService reDigitalService;
     private SibrosService sibrosService;
+
+    ReDigitalBroadcaster reDigitalBroadcaster;
+    SibrosBroadcaster sibrosBroadcaster;
+    boolean reDigitalBound = false;
+    boolean sibrosBound = false;
 
     private UARTThread mUARTThread;
     private int RING_BUFFER_SIZE = 100;
@@ -31,8 +41,43 @@ public class UARTService extends Service {
     private long timeCounter = 0l;
 
     private final IBinder binder = new UartServiceBinder();
+    private ServiceConnection digitalConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ReDigitalBroadcaster.ReDigitalLocalBinder binder = (ReDigitalBroadcaster.ReDigitalLocalBinder ) service;
+            reDigitalBroadcaster = (ReDigitalBroadcaster) binder.getService();
+            reDigitalBound = true;
+        }
+
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            reDigitalBound = false;
+        }
+    };
+
+    private ServiceConnection sibrosConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            SibrosBroadcaster.SibrosLocalBinder binder = (SibrosBroadcaster.SibrosLocalBinder ) service;
+            sibrosBroadcaster = (SibrosBroadcaster) binder.getService();
+            sibrosBound = true;
+        }
+
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            sibrosBound = false;
+        }
+    };
 
     public int onStartCommand(Intent intent, int flags, int startId) {
+        intent = new Intent(this, ReDigitalBroadcaster.class);
+        bindService(intent, digitalConnection, Context.BIND_AUTO_CREATE);
+        intent = new Intent(this, SibrosBroadcaster.class);
+        bindService(intent, sibrosConnection, Context.BIND_AUTO_CREATE);
         Log.d(TAG,"UART Service Started");
         reDigitalService = new ReDigitalService();
         sibrosService = new SibrosService();
@@ -100,16 +145,22 @@ public class UARTService extends Service {
             sendBroadcast(intent);
             Log.d(TAG,"Sibro broadcaster sent the data successfully");
 
-        /*
-        Log.d(TAG,"SendDataToSibros has been triggered...from UART-Service");
-        try{
-            sibrosService.processData(data);
-            Log.d(TAG,"SendDataToSibros has been passed successfully");
-        }catch (Exception e){
-            Log.d(TAG,"SendDataToSibros has been triggered and found exception");
-        }
+    }
 
-         */
+    void sendDataToDigitalBroadcaster(char[] readData){
+        try {
+            reDigitalBroadcaster.process(readData);
+        }catch(Exception e){
+            Log.e("SendDataToDigitalBroadcaster", "Exception found"+e);
+        }
+    }
+
+    void sendDataToSibrosBroadcaster(char[] readData){
+        try {
+            sibrosBroadcaster.processAndBroadcast(readData);
+        }catch(Exception e){
+            Log.e("SendDataToDigitalBroadcaster", "Exception found"+e);
+        }
     }
 
     void processData(char[] data){
@@ -208,8 +259,15 @@ public class UARTService extends Service {
                 Log.e(TAG, "Started reading of can-data...");
                 readData = dataPacket();
                 processData(readData);
-                //sendDataToDigitService(readData);
                 sendDataToSibrosService(readData);
+
+                try{
+                    sendDataToDigitalBroadcaster(readData);
+                    sendDataToSibrosBroadcaster(readData);
+                }catch (Exception e){
+                    Log.e("UartService", "Exception found during broadcasting");
+                }
+
             }
         }
     }
