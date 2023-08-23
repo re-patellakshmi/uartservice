@@ -82,7 +82,34 @@ public class UARTService extends Service {
     }
 
     void sendDataToSibrosService(char[] data){
-        try{ sibrosService.processData(data); }catch (Exception e){}
+
+            final String topicName = "com.royalenfield.telemetry.can.message.ACTION_SEND";
+            final String keyName = "data";
+            final String VIN = "4Y1SL65848Z411439";
+            Log.d(TAG,"Prepering the data for SibroBoradcaster");
+            Intent intent = new Intent(topicName);
+            intent.setAction(topicName);
+            char[] vinPlusCanData = new char[30];
+            int len = VIN.length();
+            Log.d(TAG,"Copying... VIN for sibros");
+            for(int i = len-1, j = 19; i >=0 ; j--, i--){ vinPlusCanData[i] = VIN.charAt(i); }
+            Log.d(TAG,"Copying... actual data for sibros");
+            for(int i = 20, j = 0; i > 30; i++, j++){ vinPlusCanData[i] = data[j]; }
+            Log.d(TAG,"Publishing the data to sibros on topic"+topicName+": "+"with keyName:"+keyName);
+            intent.putExtra(keyName, vinPlusCanData);
+            sendBroadcast(intent);
+            Log.d(TAG,"Sibro broadcaster sent the data successfully");
+
+        /*
+        Log.d(TAG,"SendDataToSibros has been triggered...from UART-Service");
+        try{
+            sibrosService.processData(data);
+            Log.d(TAG,"SendDataToSibros has been passed successfully");
+        }catch (Exception e){
+            Log.d(TAG,"SendDataToSibros has been triggered and found exception");
+        }
+
+         */
     }
 
     void processData(char[] data){
@@ -181,7 +208,7 @@ public class UARTService extends Service {
                 Log.e(TAG, "Started reading of can-data...");
                 readData = dataPacket();
                 processData(readData);
-                sendDataToDigitService(readData);
+                //sendDataToDigitService(readData);
                 sendDataToSibrosService(readData);
             }
         }
