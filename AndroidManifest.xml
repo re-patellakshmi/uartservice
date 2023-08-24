@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.quectel.uartservice"
     android:sharedUserId="android.uid.system"
     coreApp="true">
 
@@ -17,11 +16,27 @@
             </intent-filter>
        </receiver>
         <service
-            android:name=".UARTService"
+            android:name="digital.services.ReDigitalBroadcaster"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name=".UartService" />
+                <action android:name="digital.services.ReDigitalBroadcaster" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".SibrosBroadcaster"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="sibros.service.SibrosBroadcaster" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.quectel.uartservice.UARTService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.quectel.uartservice.UARTService" />
             </intent-filter>
         </service>
     </application>
