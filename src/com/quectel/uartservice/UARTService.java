@@ -20,6 +20,12 @@ import com.digital.services.pojo.SignalPacket;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 public class UARTService extends Service {
     private static final String TAG = "uartservice-UARTService";
@@ -152,7 +158,7 @@ public class UARTService extends Service {
 
     }
 
-    public void broadcastToDigit(char[] data) throws IOException {
+    public void broadcastToDigit(char[] data){
         String topicName = "com.royalenfield.digital.telemetry.info.ACTION_SEND";
         String keyName = "packet";
         int firstByte = ( int ) data[0];
@@ -168,17 +174,17 @@ public class UARTService extends Service {
             Intent intent = new Intent(topicName);
             intent.setAction(topicName);
             SignalPacket signalPacket = new SignalPacket("speed", possibleCanID, motorSpeed);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(signalPacket);
-            oos.flush();
-            byte [] objData = bos.toByteArray();
-            intent.putExtra(keyName, objData);
-            try{
+
+            try {
+                String jsonString = signalPacket.toJSON();
+                Log.e(TAG, "jsonString:"+jsonString);
+                intent.putExtra(keyName, jsonString);
                 sendBroadcast(intent);
-            }catch (Exception e){
-                Log.e(TAG, "Exception:"+e);
+                Log.e(TAG, "SendBroadcast executed successfully");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            Log.e(TAG, "12e routine has been completed");
             return;
         }
 
@@ -191,16 +197,14 @@ public class UARTService extends Service {
             intent.setAction(topicName);
 
             SignalPacket signalPacket = new SignalPacket("soc", possibleCanID, calSoc);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(signalPacket);
-            oos.flush();
-            byte [] objData = bos.toByteArray();
-            intent.putExtra(keyName, objData);
-            try{
+            try {
+                String jsonString = signalPacket.toJSON();
+                Log.e(TAG, "jsonString:"+jsonString);
+                intent.putExtra(keyName, jsonString);
                 sendBroadcast(intent);
-            }catch (Exception e){
-                Log.e(TAG, "Exception:"+e);
+                Log.e(TAG, "SendBroadcast executed successfully");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             Log.e(TAG, "12e routine has been completed");
             return;
@@ -208,61 +212,6 @@ public class UARTService extends Service {
 
     }
 
-    public void broadcastToDigitViaMap(char[] data) throws IOException {
-        String topicName = "com.royalenfield.digital.telemetry.map.info.ACTION_SEND";
-        String keyName = "packet";
-        int firstByte = ( int ) data[0];
-        int secondByte = (int ) data[1];
-        int possibleCanID =  ( firstByte << 8 | secondByte );
-        Log.e(TAG, "Possible CAN-ID in dec: "+possibleCanID);
-
-        if( possibleCanID == 0x321){
-            int motorSpeedFirstByte = (int ) data[3];
-            int motorSpeedSecondByte = (int ) data[2];
-            int motorSpeed = (motorSpeedSecondByte << 8 | motorSpeedFirstByte );
-            double calMotorSpeed = (double ) motorSpeed * ( 0.1 );
-            Intent intent = new Intent(topicName);
-            intent.setAction(topicName);
-            SignalPacket signalPacket = new SignalPacket("speed", possibleCanID, motorSpeed);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(signalPacket);
-            oos.flush();
-            byte [] objData = bos.toByteArray();
-            intent.putExtra(keyName, objData);
-            try{
-                sendBroadcast(intent);
-            }catch (Exception e){
-                Log.e(TAG, "Exception:"+e);
-            }
-            return;
-        }
-
-        if( possibleCanID == 0x12E){
-            int motorSOCFirstByte = (int ) data[3];
-            int motorSOCSecondByte = (int ) data[2];
-            int soc = ( motorSOCSecondByte << 8 | motorSOCFirstByte );
-            double calSoc = (double ) soc * ( 0.01 );
-            Intent intent = new Intent(topicName);
-            intent.setAction(topicName);
-
-            SignalPacket signalPacket = new SignalPacket("soc", possibleCanID, calSoc);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(signalPacket);
-            oos.flush();
-            byte [] objData = bos.toByteArray();
-            intent.putExtra(keyName, objData);
-            try{
-                sendBroadcast(intent);
-            }catch (Exception e){
-                Log.e(TAG, "Exception:"+e);
-            }
-            Log.e(TAG, "12e routine has been completed");
-            return;
-        }
-
-    }
 
     void sendDataToDigitalBroadcaster(char[] readData){
         try {
@@ -385,11 +334,6 @@ public class UARTService extends Service {
                     Log.e("UartService", "Exception found during broadcosting to digit via bytes"+e);
                 }
 
-                try {
-                    broadcastToDigitViaMap(readData);
-                }catch (Exception e){
-                    Log.e("UartService", "Exception found during broadcasting to digital via map"+e);
-                }
 
             }
         }

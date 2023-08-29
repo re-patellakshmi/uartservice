@@ -1,12 +1,15 @@
 package com.digital.services.pojo;
 import android.content.Intent;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
 
 public class SignalPacket implements Serializable {
     private String signal;
     private Integer canId;
-    private Object data;
+    private Object value;
     private Long timestamp;
 
     public String getSignal() {
@@ -25,12 +28,12 @@ public class SignalPacket implements Serializable {
         this.canId = canId;
     }
 
-    public Object getData() {
-        return data;
+    public Object getValue() {
+        return value;
     }
 
-    public void setData(Object data) {
-        this.data = data;
+    public void setData(Object value) {
+        this.value = value;
     }
 
     public Long getTimestamp() {
@@ -42,12 +45,25 @@ public class SignalPacket implements Serializable {
     }
 
     public SignalPacket(){};
-    public SignalPacket(String signal, Integer canId, Object data){
+    public SignalPacket(String signal, Integer canId, Object value){
         this.signal = signal;
         this.canId = canId;
-        this.data = data;
+        this.value = value;
         this.timestamp = System.currentTimeMillis();
     }
+    public String toJSON() {
 
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("signal", this.getSignal());
+            jsonObject.put("canId", this.getCanId());
+            jsonObject.put("value", this.getValue());
+            jsonObject.put("timestamp", this.getTimestamp());
+            return jsonObject.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
 
 }
