@@ -173,7 +173,7 @@ public class UARTService extends Service {
             double calMotorSpeed = (double ) motorSpeed * ( 0.1 );
             Intent intent = new Intent(topicName);
             intent.setAction(topicName);
-            SignalPacket signalPacket = new SignalPacket("speed", possibleCanID, motorSpeed);
+            SignalPacket signalPacket = new SignalPacket("speed", possibleCanID, calMotorSpeed);
 
             try {
                 String jsonString = signalPacket.toJSON();
@@ -199,10 +199,66 @@ public class UARTService extends Service {
             SignalPacket signalPacket = new SignalPacket("soc", possibleCanID, calSoc);
             try {
                 String jsonString = signalPacket.toJSON();
+                
                 Log.e(TAG, "jsonString:"+jsonString);
                 intent.putExtra(keyName, jsonString);
                 sendBroadcast(intent);
                 Log.e(TAG, "SendBroadcast executed successfully");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Log.e(TAG, "12e routine has been completed");
+            return;
+        }
+
+    }
+
+    public void broadcastToLocalApp(char[] data){
+        String topicName = "com.royalenfield.digital.telemetry.info.for.inhouse.ACTION_SEND";
+        String keyName = "packet";
+        int firstByte = ( int ) data[0];
+        int secondByte = (int ) data[1];
+        int possibleCanID =  ( firstByte << 8 | secondByte );
+        Log.e(TAG, "Possible CAN-ID in dec: "+possibleCanID);
+
+        if( possibleCanID == 0x321){
+            int motorSpeedFirstByte = (int ) data[3];
+            int motorSpeedSecondByte = (int ) data[2];
+            int motorSpeed = (motorSpeedSecondByte << 8 | motorSpeedFirstByte );
+            int calMotorSpeed = (int) (motorSpeed * ( 0.1 ));
+            Intent intent = new Intent(topicName);
+            intent.setAction(topicName);
+            SignalPacket signalPacket = new SignalPacket("speed", possibleCanID, calMotorSpeed);
+
+            try {
+                String jsonString = signalPacket.toJSON();
+                Log.e(TAG, "jsonString:"+jsonString);
+                intent.putExtra(keyName, jsonString);
+                sendBroadcast(intent);
+                Log.e(TAG, "SendBroadcast executed successfully");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Log.e(TAG, "12e routine has been completed");
+            return;
+        }
+
+        if( possibleCanID == 0x12E){
+            int motorSOCFirstByte = (int ) data[3];
+            int motorSOCSecondByte = (int ) data[2];
+            int soc = ( motorSOCSecondByte << 8 | motorSOCFirstByte );
+            int calSoc = (int) ( soc * ( 0.01 ));
+            Intent intent = new Intent(topicName);
+            intent.setAction(topicName);
+
+            SignalPacket signalPacket = new SignalPacket("soc", possibleCanID, calSoc);
+            try {
+                String jsonString = signalPacket.toJSON();
+
+                Log.e(TAG, "jsonString:"+jsonString);
+                intent.putExtra(keyName, jsonString);
+                sendBroadcast(intent);
+                Log.e(TAG, "SendBroadcast executed successfully for in-house system");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -330,6 +386,7 @@ public class UARTService extends Service {
 
                 try{
                     broadcastToDigit(readData);
+                    broadcastToLocalApp(readData);
                 }catch (Exception e){
                     Log.e("UartService", "Exception found during broadcosting to digit via bytes"+e);
                 }
