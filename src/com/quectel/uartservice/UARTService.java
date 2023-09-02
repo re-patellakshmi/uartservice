@@ -150,7 +150,7 @@ public class UARTService extends Service {
             Log.d(TAG,"Copying... VIN for sibros");
             for(int i = len-1, j = 19; i >=0 ; j--, i--){ vinPlusCanData[i] = VIN.charAt(i); }
             Log.d(TAG,"Copying... actual data for sibros");
-            for(int i = 20, j = 0; i > 30; i++, j++){ vinPlusCanData[i] = data[j]; }
+            for(int i = 20, j = 0; i < 30; i++, j++){ vinPlusCanData[i] = data[j]; }
             Log.d(TAG,"Publishing the data to sibros on topic"+topicName+": "+"with keyName:"+keyName);
             intent.putExtra(keyName, vinPlusCanData);
             sendBroadcast(intent);
