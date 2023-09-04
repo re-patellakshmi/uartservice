@@ -280,7 +280,7 @@ public class UARTService extends Service {
             int motorSpeedFirstByte = (int ) data[3];
             int motorSpeedSecondByte = (int ) data[2];
             int motorSpeed = (motorSpeedSecondByte << 8 | motorSpeedFirstByte );
-            int calMotorSpeed = (int) (motorSpeed * ( 0.1 ));
+            double calMotorSpeed = (double) (motorSpeed * ( 0.1 ));
             Intent intent = new Intent(topicName);
             intent.setAction(topicName);
             SignalPacket signalPacket = new SignalPacket("speed", possibleCanID, calMotorSpeed);
@@ -302,7 +302,7 @@ public class UARTService extends Service {
             int motorSOCFirstByte = (int ) data[3];
             int motorSOCSecondByte = (int ) data[2];
             int soc = ( motorSOCSecondByte << 8 | motorSOCFirstByte );
-            int calSoc = (int) ( soc * ( 0.01 ));
+            double calSoc = (double) ( soc * ( 0.01 ));
             Intent intent = new Intent(topicName);
             intent.setAction(topicName);
 
