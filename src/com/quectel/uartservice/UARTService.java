@@ -130,7 +130,49 @@ public class UARTService extends Service {
             double calSoc = Utility.getSoc(data);
             SignalPacket signalPacket = new SignalPacket("soc", possibleCanID, calSoc);
             broadcast(topicName, keyName, signalPacket);
+
+            double lowSoc = Utility.getLowSoc();
+            signalPacket = new SignalPacket("low_soc", possibleCanID, lowSoc);
+            broadcast(topicName, keyName, signalPacket);
             return;
+        }
+
+        if ( possibleCanID == 0x6BB){
+            boolean calkeyignition = Utility.getkeyignition(data);
+            SignalPacket signalPacket = new SignalPacket("ignition", possibleCanID, calkeyignition);
+            broadcast(topicName, keyName, signalPacket);
+        }
+
+        if ( possibleCanID == 0x6BA){
+            boolean calrightindicator = Utility.getrightindicator(data);
+            SignalPacket signalPacket = new SignalPacket("right_ttl", possibleCanID, calrightindicator);
+            broadcast(topicName, keyName, signalPacket);
+            boolean calleftindicator = Utility.getleftindicator(data);
+            signalPacket = new SignalPacket("left_ttl", possibleCanID, calleftindicator);
+            broadcast(topicName, keyName, signalPacket);
+
+            boolean hazarTtl = calleftindicator && calrightindicator ? true : false;
+            signalPacket = new SignalPacket("hazard_ttl", possibleCanID, hazarTtl);
+            broadcast(topicName, keyName, signalPacket);
+        }
+
+        if ( possibleCanID == 0x121) {
+            String calridingmode = Utility.getridingmode(data);
+            SignalPacket signalPacket = new SignalPacket("riding_mode", possibleCanID, calridingmode);
+            broadcast(topicName, keyName, signalPacket);
+
+            if( calridingmode == "REVERSE") {
+                signalPacket = new SignalPacket("reverse", possibleCanID, calridingmode);
+                broadcast(topicName, keyName, signalPacket);
+            }
+
+
+        }
+
+        if ( possibleCanID == 0xFFF) {
+            boolean chargingStatus = Utility.getChargingStatus(data);
+            SignalPacket signalPacket = new SignalPacket("riding_mode", possibleCanID, chargingStatus);
+            broadcast(topicName, keyName, signalPacket);
         }
 
     }
