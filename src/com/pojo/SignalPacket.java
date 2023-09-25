@@ -1,5 +1,4 @@
-package com.digital.services.pojo;
-import android.content.Intent;
+package com.pojo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
