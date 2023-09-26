@@ -2,6 +2,7 @@ package com.util;
 
 import android.content.Intent;
 
+import com.enums.RidingMode;
 import com.pojo.SignalPacket;
 
 public class Utility {
@@ -42,40 +43,25 @@ public class Utility {
     public static boolean getKeyIgnition (char[] data){
         int keyIgnition = (int ) data[2];
         int calKeyIgnition = keyIgnition & 0x01;
-        if(calKeyIgnition == 0)  return false;
-        else return true;
+        return (calKeyIgnition == 1);
     }
 
     public static boolean getRightIndicator (char[] data){
         int rightIndicator = (int ) data[2];
         int calRightindIcator = rightIndicator & 0b00100000;
-        if( calRightindIcator == 0 ) return false;
-        return true;
+        return ( calRightindIcator == 1 );
     }
 
     public static boolean getLeftIndIcator (char[] data){
         int leftIndicator = (int ) data[2];
         int calLeftIndicator = leftIndicator & 0b00001000;
-        if( calLeftIndicator == 0 ) return false;
-        return true;
+        return ( calLeftIndicator == 1 );
     }
 
     public static String getRidingMode ( char [] data) {
         int ridingMode = (int ) data[2];
-        int calRidIngmode = ridingMode & 0b11110000;
-        if( calRidIngmode == 0x00) return "PARK/IDLE";
-        else if( calRidIngmode == 0x01) return "ECO";
-        else if( calRidIngmode == 0x02 ) return "TOUR";
-        else if( calRidIngmode == 0x03) return "SPORT";
-        else if( calRidIngmode == 0x04) return "BOOST";
-        else if( calRidIngmode == 0x05) return "REVERSE";
-        else if( calRidIngmode == 0x06) return "LIMPHOME";
-        else if( calRidIngmode == 0x07) return "Hyper";
-        else if( calRidIngmode == 0x08) return "REGENERATION";
-        else if( calRidIngmode == 0x09) return "DERATE";
-        else if( calRidIngmode == 0x0A) return "GH3";
-        else if( calRidIngmode == 0x0B) return "BOOST2";
-        else return "Fault";
+        int calRidingMode = ridingMode & 0b11110000;
+        return RidingMode.getRidingModeByValue(calRidingMode).get().getFullName();
     }
 
     public static boolean getChargingStatus (char[] data){
