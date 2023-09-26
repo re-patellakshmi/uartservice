@@ -138,16 +138,16 @@ public class UARTService extends Service {
         }
 
         if ( possibleCanID == 0x6BB){
-            boolean calkeyignition = Utility.getkeyignition(data);
+            boolean calkeyignition = Utility.getKeyIgnition(data);
             SignalPacket signalPacket = new SignalPacket("ignition", possibleCanID, calkeyignition);
             broadcast(topicName, keyName, signalPacket);
         }
 
         if ( possibleCanID == 0x6BA){
-            boolean calrightindicator = Utility.getrightindicator(data);
+            boolean calrightindicator = Utility.getRightIndicator(data);
             SignalPacket signalPacket = new SignalPacket("right_ttl", possibleCanID, calrightindicator);
             broadcast(topicName, keyName, signalPacket);
-            boolean calleftindicator = Utility.getleftindicator(data);
+            boolean calleftindicator = Utility.getLeftindIcator(data);
             signalPacket = new SignalPacket("left_ttl", possibleCanID, calleftindicator);
             broadcast(topicName, keyName, signalPacket);
 
@@ -157,7 +157,7 @@ public class UARTService extends Service {
         }
 
         if ( possibleCanID == 0x121) {
-            String calridingmode = Utility.getridingmode(data);
+            String calridingmode = Utility.getRidingMode(data);
             SignalPacket signalPacket = new SignalPacket("riding_mode", possibleCanID, calridingmode);
             broadcast(topicName, keyName, signalPacket);
 
