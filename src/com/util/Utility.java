@@ -53,7 +53,7 @@ public class Utility {
         return true;
     }
 
-    public static boolean getLeftindIcator (char[] data){
+    public static boolean getLeftIndIcator (char[] data){
         int leftIndicator = (int ) data[2];
         int calLeftIndicator = leftIndicator & 0b00001000;
         if( calLeftIndicator == 0 ) return false;

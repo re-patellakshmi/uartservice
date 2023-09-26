@@ -120,59 +120,43 @@ public class UARTService extends Service {
         Log.e(TAG, "Possible CAN-ID in dec: "+possibleCanID);
 
         if( possibleCanID == 0x321){
-            double calMotorSpeed = Utility.getSpeed(data);
-            SignalPacket signalPacket = new SignalPacket("speed", possibleCanID, calMotorSpeed);
-            broadcast(topicName, keyName, signalPacket);
+            broadcast(topicName, keyName, new SignalPacket("speed", possibleCanID, (double) Utility.getSpeed(data)));
             return;
         }
 
         if( possibleCanID == 0x12E){
-            double calSoc = Utility.getSoc(data);
-            SignalPacket signalPacket = new SignalPacket("soc", possibleCanID, calSoc);
-            broadcast(topicName, keyName, signalPacket);
-
-            double lowSoc = Utility.getLowSoc();
-            signalPacket = new SignalPacket("low_soc", possibleCanID, lowSoc);
-            broadcast(topicName, keyName, signalPacket);
+            broadcast(topicName, keyName, new SignalPacket("soc", possibleCanID, (double ) Utility.getSoc(data)));
             return;
         }
 
         if ( possibleCanID == 0x6BB){
-            boolean calkeyignition = Utility.getKeyIgnition(data);
-            SignalPacket signalPacket = new SignalPacket("ignition", possibleCanID, calkeyignition);
-            broadcast(topicName, keyName, signalPacket);
+            broadcast(topicName, keyName, new SignalPacket("ignition", possibleCanID, (boolean ) Utility.getKeyIgnition(data)));
+            return;
         }
 
         if ( possibleCanID == 0x6BA){
-            boolean calrightindicator = Utility.getRightIndicator(data);
-            SignalPacket signalPacket = new SignalPacket("right_ttl", possibleCanID, calrightindicator);
-            broadcast(topicName, keyName, signalPacket);
-            boolean calleftindicator = Utility.getLeftindIcator(data);
-            signalPacket = new SignalPacket("left_ttl", possibleCanID, calleftindicator);
-            broadcast(topicName, keyName, signalPacket);
+            broadcast(topicName, keyName, new SignalPacket("right_ttl", possibleCanID, (boolean) Utility.getRightIndicator(data)));
+            broadcast(topicName, keyName, new SignalPacket("left_ttl", possibleCanID, (boolean) Utility.getLeftIndIcator(data)));
 
-            boolean hazarTtl = calleftindicator && calrightindicator ? true : false;
-            signalPacket = new SignalPacket("hazard_ttl", possibleCanID, hazarTtl);
-            broadcast(topicName, keyName, signalPacket);
+            boolean hazarTtl = (boolean) ((boolean) Utility.getLeftIndIcator(data)) && ((boolean) Utility.getRightIndicator(data)) ? true : false;
+            broadcast(topicName, keyName, new SignalPacket("hazard_ttl", possibleCanID, hazarTtl));
+
+            return;
         }
 
         if ( possibleCanID == 0x121) {
-            String calridingmode = Utility.getRidingMode(data);
-            SignalPacket signalPacket = new SignalPacket("riding_mode", possibleCanID, calridingmode);
-            broadcast(topicName, keyName, signalPacket);
+            String calRidingMode = (String) Utility.getRidingMode(data);
+            broadcast(topicName, keyName, new SignalPacket("riding_mode", possibleCanID, calRidingMode));
 
-            if( calridingmode == "REVERSE") {
-                signalPacket = new SignalPacket("reverse", possibleCanID, calridingmode);
-                broadcast(topicName, keyName, signalPacket);
-            }
+            if( calRidingMode == "REVERSE")
+                broadcast(topicName, keyName, new SignalPacket("reverse", possibleCanID, calRidingMode));
 
-
+            return;
         }
 
         if ( possibleCanID == 0xFFF) {
-            boolean chargingStatus = Utility.getChargingStatus(data);
-            SignalPacket signalPacket = new SignalPacket("riding_mode", possibleCanID, chargingStatus);
-            broadcast(topicName, keyName, signalPacket);
+            broadcast(topicName, keyName, new SignalPacket("riding_mode", possibleCanID, (boolean) Utility.getChargingStatus(data)));
+            return;
         }
 
     }
