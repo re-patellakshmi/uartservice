@@ -38,7 +38,7 @@ public enum RidingMode
 
     public static Optional<RidingMode> getRidingModeByValue(String value) {
         return Arrays.stream(RidingMode.values())
-                .filter(accStatus -> accStatus.fullName.equals(value) )
+                .filter(accStatus -> accStatus.fullName.equalsIgnoreCase(value) )
                 .findFirst();
     }
 
