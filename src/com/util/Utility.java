@@ -82,4 +82,12 @@ public class Utility {
         return true;
     }
 
+    public static long getOdoMeter (char[] data){
+        int odoMeterFirstByte = (int ) data[3];
+        int odoMeterSecondByte = (int ) data[2];
+        int odoMeterThirdByte = (int ) data[1];
+        long calOdoMeter = ( odoMeterThirdByte << 16 | odoMeterSecondByte << 8 | odoMeterFirstByte);
+        return calOdoMeter;
+    }
+
 }

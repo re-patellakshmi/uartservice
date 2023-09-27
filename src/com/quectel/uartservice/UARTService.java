@@ -175,6 +175,13 @@ public class UARTService extends Service {
             broadcast(topicName, keyName, signalPacket);
         }
 
+        if ( possibleCanID == 0x151) {
+            long calOdoMeter = Utility.getOdoMeter(data);
+            SignalPacket signalPacket = new SignalPacket("odo", possibleCanID, calOdoMeter);
+            broadcast(topicName, keyName, signalPacket);
+            return;
+        }
+
     }
 
     public void broadcastToDigital(char[] data){
