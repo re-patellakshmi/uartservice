@@ -169,9 +169,9 @@ public class UARTService extends Service {
 
         }
 
-        if ( possibleCanID == 0xFFF) {
+        if ( possibleCanID == 0x0AB) {
             boolean chargingStatus = Utility.getChargingStatus(data);
-            SignalPacket signalPacket = new SignalPacket("riding_mode", possibleCanID, chargingStatus);
+            SignalPacket signalPacket = new SignalPacket("charging_status", possibleCanID, chargingStatus);
             broadcast(topicName, keyName, signalPacket);
         }
 
@@ -180,6 +180,37 @@ public class UARTService extends Service {
             SignalPacket signalPacket = new SignalPacket("odo", possibleCanID, calOdoMeter);
             broadcast(topicName, keyName, signalPacket);
             return;
+        }
+
+        if( possibleCanID == 0x0CD){
+            boolean calVehicleErrorIndication = Utility.getVehicleErrorIndication(data);
+            SignalPacket signalPacket = new SignalPacket("vehicle_error_ind", possibleCanID, calVehicleErrorIndication);
+            broadcast(topicName, keyName, signalPacket);
+        }
+
+        if ( possibleCanID == 0x0EF){
+            double calVehicleChargingTime = Utility.getVehicleChargingTime(data);
+            SignalPacket signalPacket = new SignalPacket("charging_time", possibleCanID, calVehicleChargingTime);
+            broadcast(topicName, keyName, signalPacket);
+            return;
+        }
+
+        if ( possibleCanID == 0x16F){
+            long calBatterySoh = Utility.getBatterySoh(data);
+            SignalPacket signalPacket = new SignalPacket("battery_soh", possibleCanID, calBatterySoh);
+            broadcast(topicName, keyName, signalPacket);
+            return;
+        }
+
+        if( possibleCanID == 0x0AE){
+            boolean calVehicleServiceIndication = Utility.getVehicleServiceIndication(data);
+            SignalPacket signalPacket = new SignalPacket("vehicle_service_ind", possibleCanID, calVehicleServiceIndication);
+            broadcast(topicName, keyName, signalPacket);
+        }
+
+        if( possibleCanID == 0xAD){
+            boolean calAbsActive = Utility.getAbsActive(data);
+            SignalPacket signalPacket = new SignalPacket("abs_active", possibleCanID, calAbsActive);
         }
 
     }

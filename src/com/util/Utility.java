@@ -90,4 +90,39 @@ public class Utility {
         return calOdoMeter;
     }
 
+    public static boolean getVehicleErrorIndication (char [] data){
+        int vehicleErrorIndication = (int ) data[2];
+        int calVehicleErrorIndication = vehicleErrorIndication & 0x01;
+        if (calVehicleErrorIndication == 0 ) return false;
+        return true;
+    }
+
+    public static double getVehicleChargingTime (char [] data){
+        int vehicleChargingTimeFirstByte = (int ) data [3];
+        int vehicleChargingTimeSecondByte = (int ) data [2];
+        int vehicleChargingTime = ( vehicleChargingTimeSecondByte << 8 | vehicleChargingTimeFirstByte );
+        double calVehicleChargingTime = (double ) vehicleChargingTime * ( 0.01 );
+        return calVehicleChargingTime;
+    }
+    public static long getBatterySoh (char [] data){
+        int batterySohFirstByte = (int )data [3];
+        int batterySohSecondByte = (int )data [2];
+        int calBatterySoh = ( batterySohSecondByte << 8 | batterySohFirstByte );
+        return calBatterySoh;
+    }
+
+    public static boolean getVehicleServiceIndication (char [] data){
+        int vehicleServiceIndication = (int ) data[2];
+        int calVehicleServiceIndication = vehicleServiceIndication & 0x01;
+        if (calVehicleServiceIndication == 0 ) return false;
+        return true;
+    }
+
+    public static boolean getAbsActive (char [] data){
+        int absActive = (int ) data[2];
+        int calAbsActive = absActive & 0x01;
+        if (calAbsActive == 0 ) return false;
+        return true;
+    }
+
 }
