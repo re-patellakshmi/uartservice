@@ -3,13 +3,17 @@
 package com.quectel.uartservice;
 
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.digital.services.ReDigitalService;
-import com.sibros.service.SibrosService;
+import com.sibros.service.SibrosBroadcaster;
+import com.pojo.SignalPacket;
+import com.util.Utility;
+
 
 public class UARTService extends Service {
     private static final String TAG = "uartservice-UARTService";
@@ -17,8 +21,9 @@ public class UARTService extends Service {
     private static final String topicName = "com.royalenfield.telemetry.info.ACTION_SEND";
     private static final String keyName = "packet";
     private UART ttyHSLx;
-    private ReDigitalService reDigitalService;
-    private SibrosService sibrosService;
+    SibrosBroadcaster sibrosBroadcaster;
+    boolean reDigitalBound = false;
+    boolean sibrosBound = false;
 
     private UARTThread mUARTThread;
     private int RING_BUFFER_SIZE = 100;
@@ -31,11 +36,21 @@ public class UARTService extends Service {
     private long timeCounter = 0l;
 
     private final IBinder binder = new UartServiceBinder();
+    private ServiceConnection digitalConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            reDigitalBound = true;
+        }
+
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            reDigitalBound = false;
+        }
+    };
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG,"UART Service Started");
-        reDigitalService = new ReDigitalService();
-        sibrosService = new SibrosService();
         mUARTThread = new UARTThread();
         mUARTThread.start();
         return 0;
@@ -44,15 +59,6 @@ public class UARTService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
-    }
-
-    int data_bridge_init(){
-        try {
-
-        }catch (Exception e){
-            return 1;
-        }
-        return 0;
     }
 
     int uart_init()
@@ -77,60 +83,94 @@ public class UARTService extends Service {
         return ttyHSLx.uartRead();
     }
 
-    void sendDataToDigitService(char[] data){
-        try{ reDigitalService.processData(data); }catch (Exception e){}
-    }
-
     void sendDataToSibrosService(char[] data){
-        try{ sibrosService.processData(data); }catch (Exception e){}
+
+            final String topicName = "com.royalenfield.telemetry.can.message.ACTION_SEND";
+            final String keyName = "data";
+            final String VIN = "4Y1SL65848Z411439";
+            Log.d(TAG,"Prepering the data for SibroBoradcaster");
+            Intent intent = new Intent(topicName);
+            intent.setAction(topicName);
+            char[] vinPlusCanData = new char[30];
+            int len = VIN.length();
+            Log.d(TAG,"Copying... VIN for sibros");
+            for(int i = len-1, j = 19; i >=0 ; j--, i--){ vinPlusCanData[i] = VIN.charAt(i); }
+            Log.d(TAG,"Copying... actual data for sibros");
+            for(int i = 20, j = 0; i < 30; i++, j++){ vinPlusCanData[i] = data[j]; }
+            Log.d(TAG,"Publishing the data to sibros on topic"+topicName+": "+"with keyName:"+keyName);
+            intent.putExtra(keyName, vinPlusCanData);
+            sendBroadcast(intent);
+            Log.d(TAG,"Sibro broadcaster sent the data successfully");
+
     }
 
-    void processData(char[] data){
+    public void broadcast(String topicName, String keyName, SignalPacket signalPacket){
+        try {
+            Intent intent = Utility.getIntent(topicName, keyName, signalPacket);;
+            sendBroadcast(intent);
+            Log.e(TAG, "SendBroadcast executed successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.e(TAG, "12e routine has been completed");
+    }
 
-        int firstByte = ( int ) data[0];
-        int secondByte = (int ) data[1];
-        int possibleCanID1 = (firstByte | secondByte << 8);
-        int possibleCanID2 =  ( firstByte << 8 | secondByte );
-        Log.e(TAG, "Possible CAN-ID in dec: "+possibleCanID1);
-        Log.e(TAG, "Possible CAN-ID in dec: "+possibleCanID2);
+    public void processAndBroadcast(String topicName,String keyName, char[] data){
+        int possibleCanID = Utility.getCanId(data);
+        Log.e(TAG, "Possible CAN-ID in dec: "+possibleCanID);
 
-        if( possibleCanID1 == 0x321 || possibleCanID2 == 0x321){
-            int motorSpeedFirstByte = (int ) data[3];
-            int motorSpeedSecondByte = (int ) data[2];
-            int motorSpeed = (motorSpeedSecondByte << 8 | motorSpeedFirstByte );
-            double calMotorSpeed = (double ) motorSpeed * ( 0.1 );
-            Intent intent = new Intent(topicName);
-            intent.setAction(topicName);
-            intent.putExtra("id", possibleCanID2);
-            intent.putExtra("speed",  calMotorSpeed);
-            intent.putExtra("data", "RE-Data is coming");
-            try{
-                sendBroadcast(intent);
-            }catch (Exception e){
-                Log.e(TAG, "Exception:"+e);
-            }
+        if( possibleCanID == 0x321){
+            broadcast(topicName, keyName, new SignalPacket("speed", possibleCanID, (double) Utility.getSpeed(data)));
             return;
         }
 
-        if( possibleCanID1 == 0x12E || possibleCanID2 == 0x12E){
-            int motorSOCFirstByte = (int ) data[3];
-            int motorSOCSecondByte = (int ) data[2];
-            int soc = ( motorSOCSecondByte << 8 | motorSOCFirstByte );
-            double calSoc = (double ) soc * ( 0.01 );
-            Intent intent = new Intent(topicName);
-            intent.setAction(topicName);
-            intent.putExtra("id", possibleCanID2);
-            intent.putExtra("soc",  calSoc);
-            intent.putExtra("data", "RE-Data is coming");
-            try{
-                sendBroadcast(intent);
-            }catch (Exception e){
-                Log.e(TAG, "Exception:"+e);
-            }
-			Log.e(TAG, "12e routine has been completed");
+        if( possibleCanID == 0x12E){
+            broadcast(topicName, keyName, new SignalPacket("soc", possibleCanID, (double ) Utility.getSoc(data)));
             return;
         }
 
+        if ( possibleCanID == 0x6BB){
+            broadcast(topicName, keyName, new SignalPacket("ignition", possibleCanID, (boolean ) Utility.getKeyIgnition(data)));
+            return;
+        }
+
+        if ( possibleCanID == 0x6BA){
+            broadcast(topicName, keyName, new SignalPacket("right_ttl", possibleCanID, (boolean) Utility.getRightIndicator(data)));
+            broadcast(topicName, keyName, new SignalPacket("left_ttl", possibleCanID, (boolean) Utility.getLeftIndIcator(data)));
+
+            boolean hazarTtl = (boolean) ((boolean) Utility.getLeftIndIcator(data)) && ((boolean) Utility.getRightIndicator(data)) ? true : false;
+            broadcast(topicName, keyName, new SignalPacket("hazard_ttl", possibleCanID, hazarTtl));
+
+            return;
+        }
+
+        if ( possibleCanID == 0x121) {
+            String calRidingMode = (String) Utility.getRidingMode(data);
+            broadcast(topicName, keyName, new SignalPacket("riding_mode", possibleCanID, calRidingMode));
+
+            if( calRidingMode == "REVERSE")
+                broadcast(topicName, keyName, new SignalPacket("reverse", possibleCanID, calRidingMode));
+
+            return;
+        }
+
+        if ( possibleCanID == 0xFFF) {
+            broadcast(topicName, keyName, new SignalPacket("riding_mode", possibleCanID, (boolean) Utility.getChargingStatus(data)));
+            return;
+        }
+
+    }
+
+    public void broadcastToDigital(char[] data){
+        String topicName = "com.royalenfield.digital.telemetry.info.ACTION_SEND";
+        String keyName = "packet";
+        processAndBroadcast(topicName, keyName, data);
+    }
+
+    public void broadcastToLocalApp(char[] data){
+        String topicName = "com.royalenfield.digital.telemetry.info.for.inhouse.ACTION_SEND";
+        String keyName = "packet";
+        processAndBroadcast(topicName, keyName, data);
     }
 
     int uart_write(char sendbyte)
@@ -175,14 +215,18 @@ public class UARTService extends Service {
         public void run() {
             super.run();
             uart_init();
-            data_bridge_init();
-
             while (true) {
                 Log.e(TAG, "Started reading of can-data...");
                 readData = dataPacket();
-                processData(readData);
-                sendDataToDigitService(readData);
-                sendDataToSibrosService(readData);
+                try{
+                    sendDataToSibrosService(readData);
+                    broadcastToDigital(readData);
+                    broadcastToLocalApp(readData);
+                }catch (Exception e){
+                    Log.e("UartService", "Exception found during broadcosting to digit via bytes"+e);
+                }
+
+
             }
         }
     }
