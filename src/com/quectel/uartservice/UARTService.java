@@ -213,6 +213,11 @@ public class UARTService extends Service {
             SignalPacket signalPacket = new SignalPacket("abs_active", possibleCanID, calAbsActive);
         }
 
+        if( possibleCanID == 0xAA){
+            boolean regenerationActive = Utility.getChargingStatus(data);
+            SignalPacket signalPacket = new SignalPacket("regen_active", possibleCanID, regenerationActive);
+            broadcast(topicName, keyName, signalPacket);
+        }
     }
 
     public void broadcastToDigital(char[] data){

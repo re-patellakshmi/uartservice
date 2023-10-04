@@ -105,10 +105,9 @@ public class Utility {
         return calVehicleChargingTime;
     }
     public static long getBatterySoh (char [] data){
-        int batterySohFirstByte = (int )data [3];
-        int batterySohSecondByte = (int )data [2];
-        int calBatterySoh = ( batterySohSecondByte << 8 | batterySohFirstByte );
-        return calBatterySoh;
+        int batterySohFirstByte = (int )data [2];
+        long calSoh = (long) (batterySohFirstByte * (0.5 ));
+        return calSoh;
     }
 
     public static boolean getVehicleServiceIndication (char [] data){
@@ -122,6 +121,10 @@ public class Utility {
         int absActive = (int ) data[2];
         int calAbsActive = absActive & 0x01;
         if (calAbsActive == 0 ) return false;
+        return true;
+    }
+
+    public static boolean getRegenerationActive (char[] data){
         return true;
     }
 
