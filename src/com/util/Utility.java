@@ -63,9 +63,9 @@ public class Utility {
     public static String getRidingMode ( char [] data) {
         int ridingMode = (int ) data[2];
         int calRidingMode = ridingMode & 0b11110000;
-        if( calRidingMode == 0x00) return "PARK/IDLE";
+        if( calRidingMode == 0x00) return "PARK";
         else if( calRidingMode == 0x01) return "ECO";
-        else if( calRidingMode == 0x02 ) return "TOUR";
+        else if( calRidingMode == 0x02) return "TOUR";
         else if( calRidingMode == 0x03) return "SPORT";
         else if( calRidingMode == 0x04) return "BOOST";
         else if( calRidingMode == 0x05) return "REVERSE";
