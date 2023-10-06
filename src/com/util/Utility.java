@@ -62,19 +62,19 @@ public class Utility {
 
     public static String getRidingMode ( char [] data) {
         int ridingMode = (int ) data[2];
-        int calRidIngmode = ridingMode & 0b11110000;
-        if( calRidIngmode == 0x00) return "PARK/IDLE";
-        else if( calRidIngmode == 0x01) return "ECO";
-        else if( calRidIngmode == 0x02 ) return "TOUR";
-        else if( calRidIngmode == 0x03) return "SPORT";
-        else if( calRidIngmode == 0x04) return "BOOST";
-        else if( calRidIngmode == 0x05) return "REVERSE";
-        else if( calRidIngmode == 0x06) return "LIMPHOME";
-        else if( calRidIngmode == 0x07) return "Hyper";
-        else if( calRidIngmode == 0x08) return "REGENERATION";
-        else if( calRidIngmode == 0x09) return "DERATE";
-        else if( calRidIngmode == 0x0A) return "GH3";
-        else if( calRidIngmode == 0x0B) return "BOOST2";
+        int calRidingMode = ridingMode & 0b11110000;
+        if( calRidingMode == 0x00) return "PARK/IDLE";
+        else if( calRidingMode == 0x01) return "ECO";
+        else if( calRidingMode == 0x02 ) return "TOUR";
+        else if( calRidingMode == 0x03) return "SPORT";
+        else if( calRidingMode == 0x04) return "BOOST";
+        else if( calRidingMode == 0x05) return "REVERSE";
+        else if( calRidingMode == 0x06) return "LIMPHOME";
+        else if( calRidingMode == 0x07) return "Hyper";
+        else if( calRidingMode == 0x08) return "REGENERATION";
+        else if( calRidingMode == 0x09) return "DERATE";
+        else if( calRidingMode == 0x0A) return "GH3";
+        else if( calRidingMode == 0x0B) return "BOOST2";
         else return "Fault";
     }
 
