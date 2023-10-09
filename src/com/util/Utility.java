@@ -79,9 +79,14 @@ public class Utility {
     }
 
 
-    public static boolean getChargingStatus (char[] data){
-        return true;
+    public static String getChargingStatus (char[] data){
+        int chargingStatus = (int ) data[2];
+        int calChargingstatus = chargingStatus & 0b00000010;
+        if( calChargingstatus == 0x00) return "DISCONNECTED";
+        else return "CONNECTED";
+        // FAULT;
     }
+
 
     public static long getOdoMeter (char[] data){
         int odoMeterFirstByte = (int ) data[4];
@@ -125,8 +130,11 @@ public class Utility {
         return true;
     }
 
-    public static boolean getRegenerationActive (char[] data){
-        return true;
+    public static String getRegenerationActive (char[] data){
+        int regenerationActive = (int ) data[2];
+        int calRegenerationActive = regenerationActive & 0b00000001;
+        if( calRegenerationActive == 0x00) return "INACTIVE";
+        else return "ACTIVE";
     }
 
 }

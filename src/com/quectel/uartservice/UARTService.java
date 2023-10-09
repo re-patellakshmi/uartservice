@@ -184,8 +184,8 @@ public class UARTService extends Service {
 
         }
 
-        if ( possibleCanID == 0x0AB) {
-            boolean chargingStatus = Utility.getChargingStatus(data);
+        if ( possibleCanID == 0x12A) {
+            String chargingStatus = Utility.getChargingStatus(data);
             SignalPacket signalPacket = new SignalPacket("charging_status", possibleCanID, chargingStatus);
             broadcast(topicName, keyName, signalPacket);
         }
@@ -229,7 +229,7 @@ public class UARTService extends Service {
         }
 
         if( possibleCanID == 0xAA){
-            boolean regenerationActive = Utility.getChargingStatus(data);
+            String regenerationActive = Utility.getRegenerationActive(data);
             SignalPacket signalPacket = new SignalPacket("regen_active", possibleCanID, regenerationActive);
             broadcast(topicName, keyName, signalPacket);
         }
