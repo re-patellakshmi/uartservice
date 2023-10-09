@@ -144,16 +144,31 @@ public class UARTService extends Service {
         }
 
         if ( possibleCanID == 0x6BA){
-            boolean calrightindicator = Utility.getRightIndicator(data);
-            SignalPacket signalPacket = new SignalPacket("right_ttl", possibleCanID, calrightindicator);
-            broadcast(topicName, keyName, signalPacket);
-            boolean calleftindicator = Utility.getLeftindIcator(data);
-            signalPacket = new SignalPacket("left_ttl", possibleCanID, calleftindicator);
-            broadcast(topicName, keyName, signalPacket);
+            SignalPacket signalPacket = null;
 
+            boolean calrightindicator = Utility.getRightIndicator(data);
+            boolean calleftindicator = Utility.getLeftindIcator(data);
             boolean hazarTtl = calleftindicator && calrightindicator ? true : false;
-            signalPacket = new SignalPacket("hazard_ttl", possibleCanID, hazarTtl);
-            broadcast(topicName, keyName, signalPacket);
+
+            if( hazarTtl ){
+                broadcast(topicName, keyName, new SignalPacket("hazard_ttl", possibleCanID, hazarTtl));
+                broadcast(topicName, keyName, new SignalPacket("right_ttl", possibleCanID, false));
+                broadcast(topicName, keyName, new SignalPacket("left_ttl", possibleCanID, false));
+            }else if( calrightindicator ){
+                broadcast(topicName, keyName, new SignalPacket("hazard_ttl", possibleCanID, false));
+                broadcast(topicName, keyName, new SignalPacket("right_ttl", possibleCanID, calrightindicator));
+                broadcast(topicName, keyName, new SignalPacket("left_ttl", possibleCanID, false));
+            }else if( calleftindicator ){
+                broadcast(topicName, keyName, new SignalPacket("hazard_ttl", possibleCanID, false));
+                broadcast(topicName, keyName, new SignalPacket("right_ttl", possibleCanID, false));
+                broadcast(topicName, keyName, new SignalPacket("left_ttl", possibleCanID, calleftindicator));
+            }else{
+                broadcast(topicName, keyName, new SignalPacket("hazard_ttl", possibleCanID, false));
+                broadcast(topicName, keyName, new SignalPacket("right_ttl", possibleCanID, false));
+                broadcast(topicName, keyName, new SignalPacket("left_ttl", possibleCanID, false));
+            }
+
+
         }
 
         if ( possibleCanID == 0x121) {

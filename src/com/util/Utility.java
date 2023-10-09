@@ -78,6 +78,7 @@ public class Utility {
         else return "Fault";
     }
 
+
     public static boolean getChargingStatus (char[] data){
         return true;
     }
