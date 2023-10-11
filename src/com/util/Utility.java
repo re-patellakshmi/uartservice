@@ -137,4 +137,25 @@ public class Utility {
         else return "ACTIVE";
     }
 
+    public static String getSideStandStatus(char[] data){
+        int sideStandStatus = (int ) data[2];
+        int calSideStandStatus = sideStandStatus & 0b00000111;
+        if( calSideStandStatus == 0x00) return "SNA";
+        else if( calSideStandStatus == 0x01) return "Removed";
+        else if( calSideStandStatus == 0x02) return "Applied";
+        else if( calSideStandStatus == 0x03) return "Open_ShortCktFault";
+        else if( calSideStandStatus == 0x04) return "ShortCKTFault";
+        else return "";
+    }
+
+    public static String getBrakeStatus(char [] data){
+        int brakeStatus = (int ) data[2];
+        int calBrakeStatus = brakeStatus & 0b00000011;
+        if( calBrakeStatus == 0x00) return "BothBrakeNotApplied";
+        else if( calBrakeStatus == 0x01) return "FrontBrakeApplied";
+        else if( calBrakeStatus == 0x02) return "RearBrakeApplied";
+        else if( calBrakeStatus == 0x03) return "BothBrakeApplied";
+        else return "";
+    }
+
 }

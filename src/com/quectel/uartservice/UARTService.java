@@ -233,6 +233,18 @@ public class UARTService extends Service {
             SignalPacket signalPacket = new SignalPacket("regen_active", possibleCanID, regenerationActive);
             broadcast(topicName, keyName, signalPacket);
         }
+
+        if( possibleCanID == 0x361){
+            String sideStandStatus = Utility.getSideStandStatus(data);
+            SignalPacket signalPacket = new SignalPacket("side_stand", possibleCanID, sideStandStatus);
+            broadcast(topicName, keyName, signalPacket);
+        }
+
+        if( possibleCanID == 0x169){
+            String brakeStatus = Utility.getBrakeStatus(data);
+            SignalPacket signalPacket = new SignalPacket("brake_status", possibleCanID, brakeStatus);
+            broadcast(topicName, keyName, signalPacket);
+        }
     }
 
     public void broadcastToDigital(char[] data){
