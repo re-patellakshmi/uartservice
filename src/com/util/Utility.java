@@ -158,4 +158,13 @@ public class Utility {
         else return "";
     }
 
+    public static boolean getImdError (char[] data){
+        int imdErrorFirstByte = (int ) data[3];
+        int imdErrorSecondByte = (int ) data[2];
+        int imdError = ( imdErrorSecondByte << 8 | imdErrorFirstByte );
+        int calImdError = imdError & 0b1000000000000000;
+        if( calImdError == 0 ) return false;
+        return true;
+    }
+
 }

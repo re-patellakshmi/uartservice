@@ -180,8 +180,6 @@ public class UARTService extends Service {
                 signalPacket = new SignalPacket("reverse", possibleCanID, calridingmode);
                 broadcast(topicName, keyName, signalPacket);
             }
-
-
         }
 
         if ( possibleCanID == 0x12A) {
@@ -243,6 +241,12 @@ public class UARTService extends Service {
         if( possibleCanID == 0x169){
             String brakeStatus = Utility.getBrakeStatus(data);
             SignalPacket signalPacket = new SignalPacket("brake_status", possibleCanID, brakeStatus);
+            broadcast(topicName, keyName, signalPacket);
+        }
+
+        if ( possibleCanID == 0x354){
+            boolean calimderror = Utility.getImdError(data);
+            SignalPacket signalPacket = new SignalPacket("imdstatus", possibleCanID, calimderror);
             broadcast(topicName, keyName, signalPacket);
         }
     }
