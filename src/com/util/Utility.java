@@ -167,4 +167,11 @@ public class Utility {
         return true;
     }
 
+    public static double getBatTemp(char[] data){
+        int batTempFirstByte = (int ) data[3];
+        int batTempSecondByte = (int ) data[2];
+        int batTemp = (batTempSecondByte << 8 | batTempFirstByte );
+        double calBatTemp = (double ) batTemp * (0.5) - 25;
+        return calBatTemp;
+    }
 }

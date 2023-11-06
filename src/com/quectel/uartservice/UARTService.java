@@ -25,6 +25,7 @@ public class UARTService extends Service {
     boolean reDigitalBound = false;
     boolean sibrosBound = false;
 
+    Long socPreviousTimestamp = 0l;
     private UARTThread mUARTThread;
     private int RING_BUFFER_SIZE = 100;
     private int CAN_FRAME_SIZE = 10;
@@ -248,6 +249,13 @@ public class UARTService extends Service {
             boolean calimderror = Utility.getImdError(data);
             SignalPacket signalPacket = new SignalPacket("imdstatus", possibleCanID, calimderror);
             broadcast(topicName, keyName, signalPacket);
+        }
+
+        if( possibleCanID == 0x156){
+            double calBatTemp = Utility.getSpeed(data);
+            SignalPacket signalPacket = new SignalPacket("battemp", possibleCanID, calBatTemp);
+            broadcast(topicName, keyName, signalPacket);
+            return;
         }
     }
 
