@@ -252,7 +252,7 @@ public class UARTService extends Service {
         }
 
         if( possibleCanID == 0x156){
-            double calBatTemp = Utility.getSpeed(data);
+            double calBatTemp = Utility.getBatTemp(data);
             SignalPacket signalPacket = new SignalPacket("battemp", possibleCanID, calBatTemp);
             broadcast(topicName, keyName, signalPacket);
             return;
