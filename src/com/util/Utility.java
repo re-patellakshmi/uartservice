@@ -171,7 +171,7 @@ public class Utility {
         int batTempFirstByte = (int ) data[3];
         int batTempSecondByte = (int ) data[2];
         int batTemp = (batTempSecondByte << 8 | batTempFirstByte );
-        double calBatTemp = (double ) batTemp * (0.5) - 25;
+        double calBatTemp = (double ) batTemp;
         return calBatTemp;
     }
 }
