@@ -115,7 +115,6 @@ public class UARTService extends Service {
         }
         Log.e(TAG, "12e routine has been completed");
     }
-
     public void processAndBroadcast(String topicName,String keyName, char[] data){
         int possibleCanID = Utility.getCanId(data);
         Log.e(TAG, "Possible CAN-ID in dec: "+possibleCanID);
@@ -323,8 +322,6 @@ public class UARTService extends Service {
                 }catch (Exception e){
                     Log.e("UartService", "Exception found during broadcosting to digit via bytes"+e);
                 }
-
-
             }
         }
     }
