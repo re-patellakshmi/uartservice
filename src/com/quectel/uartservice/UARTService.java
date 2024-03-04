@@ -323,8 +323,6 @@ public class UARTService extends Service {
                 }catch (Exception e){
                     Log.e("UartService", "Exception found during broadcosting to digit via bytes"+e);
                 }
-
-
             }
         }
     }
