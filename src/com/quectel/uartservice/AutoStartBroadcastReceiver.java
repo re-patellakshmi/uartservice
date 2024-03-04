@@ -2,6 +2,7 @@
 // Created by john.king on 2023/6/12
 package com.quectel.uartservice;
 
+import com.datagram.DatagramService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +19,7 @@ public class AutoStartBroadcastReceiver extends BroadcastReceiver {
         mUartService = new UARTService();
         Log.d(TAG, "starting UARTService");
         context.startService(new Intent(context,UARTService.class));
+        context.startService(new Intent(context,DatagramService.class));
     }
 }
 
